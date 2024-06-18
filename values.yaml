@@ -69,7 +69,7 @@ ids:
 containers:
   - type: data-app
     name: openapi-data-app
-    image: docker.nexus.dataspac.es/data-apps/openapi-data-app:2.1.0
+    image: docker.nexus.dataspac.es/data-apps/openapi-data-app:2.3.1
     apiKey: APIKEY-sgqgCPJWgQjmMWrKLAmkETDE
     config:
       openApi:
@@ -79,7 +79,9 @@ containers:
               backEndUrlMapping:
                 ${api-version}: http://${service-name}:${internal-service-port}
               title: SERVICE TITLE
-              openApiBaseUrl: https://app.swaggerhub.com/apiproxy/registry/${username}/${api-name}/
+              # openApiBaseUrl: https://app.swaggerhub.com/apiproxy/registry/${username}/${api-name}/
+              openApiMapping:
+                ${api-version}: http://${service-name}:${internal-service-port}
               versions: 
               - ${api-version}            
     services:
