@@ -40,7 +40,9 @@ Send a message to Maarten and Willem, or ask during one of the calls, to activat
 In `values.yaml` file, at both places where the `openApiBaseUrl` is allowed (on the root config of the data app and per agent) now also `openApiMapping` is supported. The structure is similar to `backendUrlMapping`, so per version the full URL of the OpenAPI document can be provided, e.g.:
 ```yaml
 openApiMapping:
-  0.0.0: https://httpbin.org/spec.json
+  ${api-version}: http://path_to_api_description_json
+versions: 
+  - ${api-version}
 ```
 
 ## Prerequisites
