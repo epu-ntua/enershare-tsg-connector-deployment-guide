@@ -132,7 +132,7 @@ Apply `cluster-issuer.yaml` file provided using:
             descriptions:
               - ${CONNECTOR DESCRIPTION@en}
         ```
-    - Modify fields in the `agents` tab: Keep in mind that `api-version` is the version number you have used for your API when you uploaded in SwaggerHub (e.g 0.5). It is important to note that in order to retrieve the API spec for the data app, the URL used in the config should be the `/apiproxy/registry/` variant instead of the `/apis/` link from Swagger hub.
+    - Modify fields in the `agents` tab: Keep in mind that `api-version` is the version number you have used for your API when you uploaded in [SwaggerHub](#3-swaggerhub) (e.g 0.5). It is important to note that in order to retrieve the API spec for the data app, the URL used in the config should be the `/apiproxy/registry/` variant instead of the `/apis/` link from Swagger hub.
     
         **Important Note:** As of version 2.3.1 of the OpenAPI data app (`image docker.nexus.dataspac.es/data-apps/openapi-data-app:2.3.1`), it is no longer necessery to add your openAPI description to Swaggerhub for the connector to find your app. In `values.yaml` file, at both places where the `openApiBaseUrl` is allowed (on the root config of the data app and per agent) now also `openApiMapping` is supported. We encourage the use of openApiMapping for less complexity, third-party overhead. The structure is similar to `backendUrlMapping`, so per version the full URL of the OpenAPI document can be provided:
       ```yaml
@@ -182,7 +182,7 @@ Apply `cluster-issuer.yaml` file provided using:
       users:
           - id: admin
               # -- BCrypt encoded password
-              password: $2a$12$cOEhdassfs/gcpyCasafrefeweQ0axdsaafrswIuKysZdeJMArNxfsasjfbeajsaf
+              password: ${admin-password}
               roles:
                   - ADMIN
       ```
