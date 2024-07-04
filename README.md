@@ -16,7 +16,7 @@ See more details regarding its configuration in the [Prerequisites](#prerequisit
 
 ### 2. Request dataspace certificates
 
-You nee to become a participant in a dataspace as well as create your connector credentials in the [Εnershare](https://daps.enershare.dataspac.es/#home) (or [TSG Playground](https://daps.playground.dataspac.es/#management)) dataspace. This is important to acquire the necessary certificate files and keys, as well as connector/partificant IDs (used in is secrets and `values.yaml` respectively). 
+You need to become a participant in a dataspace as well as create your connector credentials in the [Εnershare](https://daps.enershare.dataspac.es/#home) (or [TSG Playground](https://daps.playground.dataspac.es/#management)) dataspace. This is important to acquire the necessary certificate files and keys, as well as connector/partificant IDs (used in is secrets and `values.yaml` respectively). 
 1. Create an account at the Enershare Identity Provider
 2. Go to the sub-tab `Participants` within the `Management` tab and `request a Participant certificate` via the button at the bottom of the page. You can choose your own participant ID, our suggestion is to use an identifier in the form of `urn:ids:enershare:participants:ORGANISATION_NAME` (where spaces can be replaced with hypens). You can either choose to create a private key and certificate signing request via the OpenSSL CLI or use the form under `Create private key in browser`. When using the form to generate the private key, ensure you download it, since it won't be stored anywhere by default.
 3. Go to the sub-tab `Connectors` withing the `Management` tab and `request a Connector certificate` via the button at the bottom of the page. The process is similar to the Participant certificate, but it requires a participant certificate. For the connector ID, our suggestion is to use an identifier in the form of `urn:ids:enershare:connectors:ORGANISATION_NAME:CONNECTOR_NAME` (where spaces can be replaced with hyphens). The connector name can be a human readable name for the connector. 
@@ -32,7 +32,7 @@ At the end of this step, a participant and connector (with appropriate IDs) shou
 
 Send a message to Maarten and Willem, or ask during one of the calls, to activate the certificates.
 
-### 3. SwaggerHub 
+### 3. SwaggerHub (Optional)
 
 (For provider connectors) you need to have uploaded your API's documentation in [SwaggerHub](https://app.swaggerhub.com/home), when deploying APIs through the connector. See more details regarding its use in the [Deployment](#deployment) section
 
@@ -134,17 +134,17 @@ Apply `cluster-issuer.yaml` file provided using:
         ```
     - Modify fields in the `agents` tab: Keep in mind that `api-version` is the version number you have used for your API when you uploaded in [SwaggerHub](#3-swaggerhub) (e.g 0.5). It is important to note that in order to retrieve the API spec for the data app, the URL used in the config should be the `/apiproxy/registry/` variant instead of the `/apis/` link from Swagger hub.
     
-        **Important Note:** As of version 2.3.1 of the OpenAPI data app (`image docker.nexus.dataspac.es/data-apps/openapi-data-app:2.3.1`), it is no longer necessery to add your openAPI description to Swaggerhub for the connector to find your app. In `values.yaml` file, at both places where the `openApiBaseUrl` is allowed (on the root config of the data app and per agent) now also `openApiMapping` is supported. We encourage the use of openApiMapping for less complexity, third-party overhead. The structure is similar to `backendUrlMapping`, so per version the full URL of the OpenAPI document can be provided:
+        **Important Note:** As of version 2.3.1 of the OpenAPI data app (`image docker.nexus.dataspac.es/data-apps/openapi-data-app:2.3.1`), it is no longer necessery to add your openAPI description to Swaggerhub for the connector to find your app. In `values.yaml` file, at both places where the `openApiBaseUrl` is allowed (on the root config of the data app and per agent) now also `openApiMapping` is supported. We encourage the use of `openApiMapping` for less complexity and third-party overhead. The structure is similar to `backendUrlMapping`, so per version the full URL of the OpenAPI document can be provided:
       ```yaml
       agents:
           - id: ${IDS_COMPONENT_ID}:${AgentName} # custom agent defined by user
             backEndUrlMapping:
               ${api-version}: http://${service-name}:${internal-service-port}
             title: SERVICE TITLE
-            # Comment/Uncomment either openApiBaseUrl or openApiMapping snippet
-            openApiBaseUrl: https://app.swaggerhub.com/apiproxy/registry/${username}/${api-name}/
-            # openApiMapping:
-            #  ${api-version}: http://path_to_api_description_json
+            Comment/Uncomment either openApiBaseUrl or openApiMapping snippet
+            # openApiBaseUrl: https://app.swaggerhub.com/apiproxy/registry/${username}/${api-name}/
+            openApiMapping:
+              ${api-version}: http://path_to_api_description_json
             versions: 
             - ${api-version}
       ```
@@ -189,7 +189,7 @@ Apply `cluster-issuer.yaml` file provided using:
     - (Optionally) Connector's container UI is secured using ingress authentication, with credentials found in `ids.security.users` in connector's `values.yaml`. To secure the connector's data-app as well, the developer must uncomment the     `containers.services.ingress.annotations` fields in `values.yaml`. Since, the authentication is implemented using ingress, the paths' prefix must match the one in `coreContainer.ingress.path`
       ```yaml
       coreContainer.ingress.path: /${deployment-name}/(.*)
-                                ...
+      ...
       containers.services.ingress.annotations:
         nginx.ingress.kubernetes.io/auth-url: "https://$host/${deployment-name}/external-auth/auth"
         nginx.ingress.kubernetes.io/auth-signin: "https://$host/${deployment-name}/external-auth/signin?rd=$escaped_request_uri"
