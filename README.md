@@ -132,14 +132,16 @@ Apply `cluster-issuer.yaml` file provided using:
             descriptions:
               - ${CONNECTOR DESCRIPTION@en}
         ```
-    - Modify fields in the `agents` tab: Keep in mind that `api-version` is the version number you have used for your API when you uploaded in SwaggerHub (e.g 0.5). It is important to note that in order to retrieve the API spec for the data app, the URL used in the config should be the `/apiproxy/registry/` variant instead of the `/apis/` link from Swagger hub.
+    - Modify fields in the `agents` tab: Keep in mind that `api-version` is the version number you have used for your API when you uploaded in SwaggerHub (e.g 0.5). It is important to note that in order to retrieve the API spec for the data app, the URL used in the config should be the `/apiproxy/registry/` variant instead of the `/apis/` link from Swagger hub. **Note:** As of version 2.3.1 of the OpenAPI data app (image docker.nexus.dataspac.es/data-apps/openapi-data-app:2.3.1), it is no longer necessery to add your openAPI description to Swaggerhub for the connector to find your app. In `values.yaml` file, at both places where the `openApiBaseUrl` is allowed (on the root config of the data app and per agent) now also `openApiMapping` is supported. The structure is similar to `backendUrlMapping`, so per version the full URL of the OpenAPI document can be provided, e.g.:
       ```yaml
       agents:
           - id: ${IDS_COMPONENT_ID}:${AgentName} # custom agent defined by user
             backEndUrlMapping:
               ${api-version}: http://${service-name}:${internal-service-port}
             title: SERVICE TITLE
-            openApiBaseUrl: https://app.swaggerhub.com/apiproxy/registry/${username}/${api-name}/
+            # openApiBaseUrl: https://app.swaggerhub.com/apiproxy/registry/${username}/${api-name}/
+            openApiMapping:
+              ${api-version}: http://path_to_api_description_json
             versions: 
             - ${api-version}
       ```
