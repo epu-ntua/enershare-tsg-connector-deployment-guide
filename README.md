@@ -172,7 +172,7 @@ Apply `cluster-issuer.yaml` file provided using:
       ...
       apiKey: APIKEY-sgqgCPJWgQjmMWrKLAmkETDE
       ```
-    - (Optionally) Modify `ids.security.users.password` field: Create your own BCrypt encoded password for the admin user of the connector (also used in the default configuration to secure the ingress of the data app).
+    - (Optionally) Modify `ids.security.users.password` field: Create your own BCrypt encoded password for the admin user of the connector (also used in the default configuration to secure the ingress of the data app). 
       ```yaml
       users:
           - id: admin
@@ -181,7 +181,15 @@ Apply `cluster-issuer.yaml` file provided using:
               roles:
                   - ADMIN
       ```
-    
+    - (Optionally) Connector's container UI is secured using ingress authentication, with credentials found in `ids.security.users` in connector's `values.yaml`. To secure the connector's data-app as well, the developer must uncomment the     `containers.services.ingress.annotations` fields in `values.yaml`. Since, the authentication is implemented using ingress, the paths' prefix must match the one in `coreContainer.ingress.path`
+      ```yaml
+      coreContainer.ingress.path: /${deployment-name}/(.*)
+                                ...
+      containers.services.ingress.annotations:
+        nginx.ingress.kubernetes.io/auth-url: "https://$host/${deployment-name}/external-auth/auth"
+        nginx.ingress.kubernetes.io/auth-signin: "https://$host/${deployment-name}/external-auth/signin?rd=$escaped_request_uri"
+      ```
+
 3. Create IDS Identity secret: Cert-manager stores TLS certificates as Kubernetes secrets, making them easily accessible to your applications. When certificates are renewed, the updated certificates are automatically stored in the corresponding secrets. Create an Kubernetes secret containing the certificates acquired from identity creation.
     ```bash
     microk8s kubectl create secret generic ids-identity-secret --from-file=ids.crt=./component.crt \
@@ -239,7 +247,7 @@ For the `version`, you should select the version of your own backend service, an
 
 #### Headers
 To ensure that the OpenAPI data app knows where to route the request, you can include headers with the request. The headers used are the:
-- `Authorization`:  the Bearer Authentication HTTP header, so the field is filled as `Bearer` plus the API key defined in `values.yaml` file at `is.security.key`
+- `Authorization`:  the Bearer Authentication HTTP header, so the field is filled as `Bearer` plus the API key defined in `values.yaml` file at `containers.apiKey` (required **only** if data-app UI requires ingress authentication)
 - `Forward-ID`: the Agent ID of the service registered at the party you wish to interact with (reciever)
 - `Forward-Sender`: your own Agent ID for identification purposes (`${IDS_COMPONENT_ID}`)
 
