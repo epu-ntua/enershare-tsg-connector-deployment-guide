@@ -117,12 +117,12 @@ sudo ufw allow 53
 ### 1. Configure the Helm Chart
 Update the `values.yaml` file with the modifications to the configuration (see `/examples/values.ntua.yml` as an example).In this guide, it is assumed that you have followed the instructions in the [Requirements](#requirements) section. Please refer to the official TSG gitlab [page](https://gitlab.com/tno-tsg/helm-charts/connector/-/blob/master/README.md?ref_type=heads) for further information with regards to the configuration.The minimal configuration required to get your first deployment running, without data apps and ingresses, is as follows:
 
-#### Host
+#### a. Host
 Modify `host` to the domain name you configured with the ingress controller:
 ```yaml
 host: ${domain-name}
 ```
-#### Connector IDs
+#### b. Connector IDs
 Modify `ids.info.idsid`, `ids.info.curator`, `ids.info.maintainer` in the `values.yml` file to the corresponding identifiers that you filled in during creation of the certificates. `ids.info.idsid` should be the Connector ID, and `ids.info.curator`, `ids.info.maintainer` should be the Participant ID. (Optionally) change `titles`and `descriptions` to the connector name, and a more descriptive description of your service in the future:
 ```yaml
 ids:
@@ -135,7 +135,7 @@ ids:
     descriptions:
       - ${CONNECTOR DESCRIPTION@en}
 ```
-#### Data-app agents
+#### c. Data-app agents
 Modify fields in the `agents` tab: Keep in mind that `api-version` is the version number you have used for your API when you uploaded in [SwaggerHub](#3-swaggerhub) (e.g 0.5). It is important to note that in order to retrieve the API spec for the data app, the URL used in the config should be the `/apiproxy/registry/` variant instead of the `/apis/` link from Swagger hub.
     
 **Important Note:** As of version 2.3.1 of the OpenAPI data app (`image docker.nexus.dataspac.es/data-apps/openapi-data-app:2.3.1`), it is no longer necessery to add your openAPI description to Swaggerhub for the connector to find your app. In `values.yaml` file, at both places where the `openApiBaseUrl` is allowed (on the root config of the data app and per agent) now also `openApiMapping` is supported. We encourage the use of `openApiMapping` for less complexity and third-party overhead. The structure is similar to `backendUrlMapping`, so per version the full URL of the OpenAPI document can be provided:
@@ -152,7 +152,7 @@ Modify fields in the `agents` tab: Keep in mind that `api-version` is the versio
         versions: 
         - ${api-version}
   ```
-#### Multiple connectors (optional)
+#### d. Multiple connectors (optional)
 **When using multiple connectors in the same cluster**: deploy connectors at different namespaces to avoid confusion between their certificates. Each connector namespace must contain the connector helm chart as well as its respective identity-secret. Additionally, to avoid overlap between connectors in the same namespace or/and domain, you should also modify in the `values.yaml`:
 
 - the data-app path at `containers.services.ingress.path`
@@ -179,7 +179,7 @@ Modify fields in the `agents` tab: Keep in mind that `api-version` is the versio
             clusterIssuer: letsencrypt
             ingressClass: public
         ```     
-#### Security (Optional)
+#### e. Security (Optional)
 - Modify `ids.security.apiKey.key` and `Containers.key` fields: Change the bit after ``APIKEY-`` to a random API key used for interaction between the core container and the data app.
   ```yaml
   key: APIKEY-sgqgCPJWgQjmMWrKLAmkETDE
@@ -259,20 +259,19 @@ will be available, with the login matching the admin user with the provided BCry
 To utilize the functionality of the Open API data app programmatically, you can make client side calls to query the app. This is the same method used by the app's user interface.
 For a more concrete template example, please look at `/examples/client-app.py`, where we use [python requests](https://requests.readthedocs.io/en/latest/user/quickstart/) to perform API calls to the connector. Please note that the script might not work at the time of your execution, as the credentials will be updated.
 
-#### URL
+#### a. URL
 The structure of these calls is as follows: `https://<baseurl>/<data-app-path>/openapi/<version>/<endpoint>`. 
 The baseurl represents the URL where your connector is deployed, while the `data-app-path` refers to the path used for the data app. 
 For the `version`, you should select the version of your own backend service, and for the endpoint, choose an endpoint specific to your service.
 
-#### Headers
+#### b. Headers
 To ensure that the OpenAPI data app knows where to route the request, you can include headers with the request. The headers used are the:
 - `Authorization`:  the Bearer Authentication HTTP header, so the field is filled as `Bearer`, plus space, plus the API key defined in `values.yaml` file at `containers.apiKey` (incluing `APIKEY-` prefix). This header field is required **only** if data-app UI is configured with ingress authentication.
 - `Forward-ID`: the Agent ID of the service registered at the party you wish to interact with (reciever)
 - `Forward-Sender`: your own Agent ID for identification purposes (`${IDS_COMPONENT_ID}`)
 
-#### Params
+#### c. Params
 In case of Query parameters are not URL encoded and therefore, if you need to perform queries, require to use the `params` option.
-
 If you are using external authentication, it is advisable not to make calls to the OpenAPI data app via the ingress. 
 In such cases, you can deploy your service in the same Kubernetes cluster as the data app and use the internal Kubernetes service URL to access the data app.
 
