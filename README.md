@@ -47,7 +47,8 @@ versions:
 
 ## Prerequisites
 
-1. **Install microk8s system using `snap`:** We use microk8s since it provides easy installation for many important compoments for the connector (kubectl, helm, ingress, cert-manager)
+#### 1. **Install microk8s system using `snap`:** 
+We use microk8s since it provides easy installation for many important compoments for the connector (kubectl, helm, ingress, cert-manager)
 
     ```bash
     sudo snap install microk8s --classic
@@ -60,12 +61,13 @@ versions:
     sudo usermod -a -G microk8s ${USER} # set sudo user for microk8s 
     ```
 
-2. Ensure which ports are already opened in your current working enviroment using:
+#### 2. Ensure which ports are already opened in your current working enviroment using:
     ```bash
     sudo ufw status numbered # check port status
     ```
 
-3. **Enable ingress addon:** An ingress controller acts as a reverse proxy and load balancer. It adds a layer of abstraction to traffic routing, accepting traffic from outside the Kubernetes platform and load balancing it to Pods running inside the platform
+#### 3. **Enable ingress addon:** 
+An ingress controller acts as a reverse proxy and load balancer. It adds a layer of abstraction to traffic routing, accepting traffic from outside the Kubernetes platform and load balancing it to Pods running inside the platform
     ```bash
     # cert-manager requires ports 80,443 to be allowed from the firewall
     sudo ufw allow 80 
@@ -73,7 +75,8 @@ versions:
     sudo microk8s enable ingress
     ```
 
-4. **Enable cert-manager addon:** Cert-manager is a tool for Kubernetes that makes it easy to get and manage security certificates for your websites or applications. Cert-manager talks to certificate authorities (like Let's Encrypt) automatically to get certificates for your domain.
+#### 4. **Enable cert-manager addon:** 
+Cert-manager is a tool for Kubernetes that makes it easy to get and manage security certificates for your websites or applications. Cert-manager talks to certificate authorities (like Let's Encrypt) automatically to get certificates for your domain.
     ```bash
     # cert-manager requires port 9402 to be allowed from the firewall
     sudo ufw allow 9402
@@ -83,13 +86,15 @@ versions:
     # sudo ufw enable
     ```
 
-5. **Configure clusterIssuer:** ClusterIssuer is a Kubernetes resource that represents a specific certificate authority or a way to obtain certificates for cluster-wide issuance. It uses the ACME protocol to interact with certificate authorities (e.g Let's Encrypt) and automate the certificate issuance process.
+#### 5. **Configure clusterIssuer:** 
+ClusterIssuer is a Kubernetes resource that represents a specific certificate authority or a way to obtain certificates for cluster-wide issuance. It uses the ACME protocol to interact with certificate authorities (e.g Let's Encrypt) and automate the certificate issuance process.
 Apply `cluster-issuer.yaml` file provided using:
     ```bash
     microk8s kubectl apply -f cluster-issuer.yaml
     ```
 
-6. Ensure DNS A records (or a wildcard DNS A record) is set to point to the public IP address of the VM.
+#### 6. DNS A records 
+Ensure DNS A records (or a wildcard DNS A record) is set to point to the public IP address of the VM.
     ```bash
     # This returns VM's public IP address in ipv4 (e.g 147.102.6.27)
     curl -4 ifconfig.co 
@@ -97,135 +102,150 @@ Apply `cluster-issuer.yaml` file provided using:
     nslookup {domain-name}
     ```
 
-7. Ensure dns ports (53/9153) are available:
+#### 7. Ensure dns ports (53/9153) are available:
     ```bash
     sudo ufw allow 9153 
     sudo ufw allow 53
     ```
-8. **Enable Helm addon:** [Helm](https://helm.sh/docs/intro/using_helm/) is a package manager software for Kubernetes applications. If not installed by default when initializing microk8s cluster, enable it manually:
+#### 8. **Enable Helm addon:** 
+[Helm](https://helm.sh/docs/intro/using_helm/) is a package manager software for Kubernetes applications. If not installed by default when initializing microk8s cluster, enable it manually:
    ```bash
     sudo microk8s enable helm
    ```
 
 ## Deployment
 
-1. Configure the Helm Chart: update the `values.yaml` file with the modifications to the configuration (see `/examples/values.ntua.yml` as an example).
+### 1. Configure the Helm Chart
+Update the `values.yaml` file with the modifications to the configuration (see `/examples/values.ntua.yml` as an example).
 
     In this guide, it is assumed that you have followed the instructions in the [Requirements](#requirements) section. 
     Please refer to the official TSG gitlab [page](https://gitlab.com/tno-tsg/helm-charts/connector/-/blob/master/README.md?ref_type=heads) for further information with regards to the configuration.
     
     The minimal configuration required to get your first deployment running, without data apps and ingresses, is as follows:
-    
-    - Modify `host` to the domain name you configured with the ingress controller:
-        ```yaml
-        host: ${domain-name}
-        ```
-    - Modify `ids.info.idsid`, `ids.info.curator`, `ids.info.maintainer` in the `values.yml` file to the corresponding identifiers that you filled in during creation of the certificates. `ids.info.idsid` should be the Connector ID, and `ids.info.curator`, `ids.info.maintainer` should be the Participant ID. (Optionally) change `titles`and `descriptions` to the connector name, and a more descriptive description of your service in the future:
-        ```yaml
-        ids:
-          info:
-            idsid: ${IDS_COMPONENT_ID}
-            curator: ${IDS_PARTICIPANT_ID}
-            maintainer: ${IDS_PARTICIPANT_ID}
-            titles:
-              - ${CONNECTOR TITLE@en}
-            descriptions:
-              - ${CONNECTOR DESCRIPTION@en}
-        ```
-    - Modify fields in the `agents` tab: Keep in mind that `api-version` is the version number you have used for your API when you uploaded in [SwaggerHub](#3-swaggerhub) (e.g 0.5). It is important to note that in order to retrieve the API spec for the data app, the URL used in the config should be the `/apiproxy/registry/` variant instead of the `/apis/` link from Swagger hub.
-    
-        **Important Note:** As of version 2.3.1 of the OpenAPI data app (`image docker.nexus.dataspac.es/data-apps/openapi-data-app:2.3.1`), it is no longer necessery to add your openAPI description to Swaggerhub for the connector to find your app. In `values.yaml` file, at both places where the `openApiBaseUrl` is allowed (on the root config of the data app and per agent) now also `openApiMapping` is supported. We encourage the use of `openApiMapping` for less complexity and third-party overhead. The structure is similar to `backendUrlMapping`, so per version the full URL of the OpenAPI document can be provided:
-      ```yaml
-      agents:
-          - id: ${IDS_COMPONENT_ID}:${AgentName} # custom agent defined by user
-            backEndUrlMapping:
-              ${api-version}: http://${service-name}:${internal-service-port}
-            title: SERVICE TITLE
-            # Comment/Uncomment either openApiBaseUrl or openApiMapping snippet
-            # openApiBaseUrl: https://app.swaggerhub.com/apiproxy/registry/${username}/${api-name}/
-            openApiMapping:
-              ${api-version}: http://path_to_api_description_json
-            versions: 
-            - ${api-version}
-      ```
-   - **When using multiple connectors in the same cluster**: deploy connectors at different namespaces to avoid confusion between their certificates. Each connector namespace must contain the connector helm chart as well as its respective identity-secret. Additionally, to avoid overlap between connectors in the same namespace or/and domain, you should also modify in the `values.yaml`:
-        - the data-app path at `containers.services.ingress.path`
-            ```yaml
-             services:
-               - port: 8080
-                 name: http
-                 ingress:
-                   path: /${data-app}/(.*)
-            ```
-        - the name of the identity secret at `coreContainer.secrets.idsIdentity.name`
-            ```yaml
-             secrets:
-               idsIdentity:
-                 name: ${ids-identity-secret}
-            ```
-        - the ingress path at `coreContainer.ingress.path` and `adminUI.ingress.path`
-            ```yaml
-            ingress:
-                path: /${deployment-name}/ui/(.*)
-                rewriteTarget: /$1
-                clusterIssuer: letsencrypt
-                ingressClass: public
-            ```     
-    - (Optionally) Modify `ids.security.apiKey.key` and `Containers.key` fields: Change the bit after ``APIKEY-`` to a random API key used for interaction between the core container and the data app.
-      ```yaml
-      key: APIKEY-sgqgCPJWgQjmMWrKLAmkETDE
-      ...
-      apiKey: APIKEY-sgqgCPJWgQjmMWrKLAmkETDE
-      ```
-    - (Optionally) Modify `ids.security.users.password` field: Create your own BCrypt encoded password for the admin user of the connector (also used in the default configuration to secure the ingress of the data app). 
-      ```yaml
-      users:
-          - id: admin
-              # -- BCrypt encoded password
-              password: ${admin-password}
-              roles:
-                  - ADMIN
-      ```
-    - (Optionally) Connector's container UI is secured using ingress authentication, with credentials found in `ids.security.users` in connector's `values.yaml`. To secure the connector's data-app as well, the developer must uncomment the     `containers.services.ingress.annotations` fields in `values.yaml`. Since, the authentication is implemented using ingress, the paths' prefix must match the one in `coreContainer.ingress.path`
-      ```yaml
-      coreContainer.ingress.path: /${deployment-name}/(.*)
-      ...
-      containers.services.ingress.annotations:
-        nginx.ingress.kubernetes.io/auth-url: "https://$host/${deployment-name}/external-auth/auth"
-        nginx.ingress.kubernetes.io/auth-signin: "https://$host/${deployment-name}/external-auth/signin?rd=$escaped_request_uri"
-      ```
 
-3. Create IDS Identity secret: Cert-manager stores TLS certificates as Kubernetes secrets, making them easily accessible to your applications. When certificates are renewed, the updated certificates are automatically stored in the corresponding secrets. Create an Kubernetes secret containing the certificates acquired from identity creation.
-    ```bash
-    microk8s kubectl create secret generic ids-identity-secret --from-file=ids.crt=./component.crt \
-                                                               --from-file=ids.key=./component.key \
-                                                               --from-file=ca.crt=./cachain.crt    \
-                                                               -n ${namespace} 
+#### Host
+Modify `host` to the domain name you configured with the ingress controller:
+```yaml
+host: ${domain-name}
+```
+#### Connector IDs
+Modify `ids.info.idsid`, `ids.info.curator`, `ids.info.maintainer` in the `values.yml` file to the corresponding identifiers that you filled in during creation of the certificates. `ids.info.idsid` should be the Connector ID, and `ids.info.curator`, `ids.info.maintainer` should be the Participant ID. (Optionally) change `titles`and `descriptions` to the connector name, and a more descriptive description of your service in the future:
+```yaml
+ids:
+  info:
+    idsid: ${IDS_COMPONENT_ID}
+    curator: ${IDS_PARTICIPANT_ID}
+    maintainer: ${IDS_PARTICIPANT_ID}
+    titles:
+      - ${CONNECTOR TITLE@en}
+    descriptions:
+      - ${CONNECTOR DESCRIPTION@en}
+```
+#### Data-app agents
+Modify fields in the `agents` tab: Keep in mind that `api-version` is the version number you have used for your API when you uploaded in [SwaggerHub](#3-swaggerhub) (e.g 0.5). It is important to note that in order to retrieve the API spec for the data app, the URL used in the config should be the `/apiproxy/registry/` variant instead of the `/apis/` link from Swagger hub.
+    
+**Important Note:** As of version 2.3.1 of the OpenAPI data app (`image docker.nexus.dataspac.es/data-apps/openapi-data-app:2.3.1`), it is no longer necessery to add your openAPI description to Swaggerhub for the connector to find your app. In `values.yaml` file, at both places where the `openApiBaseUrl` is allowed (on the root config of the data app and per agent) now also `openApiMapping` is supported. We encourage the use of `openApiMapping` for less complexity and third-party overhead. The structure is similar to `backendUrlMapping`, so per version the full URL of the OpenAPI document can be provided:
+  ```yaml
+  agents:
+      - id: ${IDS_COMPONENT_ID}:${AgentName} # custom agent defined by user
+        backEndUrlMapping:
+          ${api-version}: http://${service-name}:${internal-service-port}
+        title: SERVICE TITLE
+        # Comment/Uncomment either openApiBaseUrl or openApiMapping snippet
+        # openApiBaseUrl: https://app.swaggerhub.com/apiproxy/registry/${username}/${api-name}/
+        openApiMapping:
+          ${api-version}: http://path_to_api_description_json
+        versions: 
+        - ${api-version}
+  ```
+#### Multiple connectors (optional)
+**When using multiple connectors in the same cluster**: deploy connectors at different namespaces to avoid confusion between their certificates. Each connector namespace must contain the connector helm chart as well as its respective identity-secret. Additionally, to avoid overlap between connectors in the same namespace or/and domain, you should also modify in the `values.yaml`:
+
+- the data-app path at `containers.services.ingress.path`
+    ```yaml
+     services:
+       - port: 8080
+         name: http
+         ingress:
+           path: /${data-app}/(.*)
     ```
-    please update to appropriate names the `namespace` (e.g default)
+
+- the name of the identity secret at `coreContainer.secrets.idsIdentity.name`
+    ```yaml
+     secrets:
+       idsIdentity:
+         name: ${ids-identity-secret}
+    ```
+
+- the ingress path at `coreContainer.ingress.path` and `adminUI.ingress.path`
+        ```yaml
+        ingress:
+            path: /${deployment-name}/ui/(.*)
+            rewriteTarget: /$1
+            clusterIssuer: letsencrypt
+            ingressClass: public
+        ```     
+#### Security (Optional)
+- Modify `ids.security.apiKey.key` and `Containers.key` fields: Change the bit after ``APIKEY-`` to a random API key used for interaction between the core container and the data app.
+  ```yaml
+  key: APIKEY-sgqgCPJWgQjmMWrKLAmkETDE
+  ...
+  apiKey: APIKEY-sgqgCPJWgQjmMWrKLAmkETDE
+  ```
+
+- Modify `ids.security.users.password` field: Create your own BCrypt encoded password for the admin user of the connector (also used in the default configuration to secure the ingress of the data app). 
+  ```yaml
+  users:
+      - id: admin
+          # -- BCrypt encoded password
+          password: ${admin-password}
+          roles:
+              - ADMIN
+  ```
+- Connector's container UI is secured using ingress authentication, with credentials found in `ids.security.users` in connector's `values.yaml`. To secure the connector's data-app as well, the developer must uncomment the     `containers.services.ingress.annotations` fields in `values.yaml`. Since, the authentication is implemented using ingress, the paths' prefix must match the one in `coreContainer.ingress.path`
+  ```yaml
+  coreContainer.ingress.path: /${deployment-name}/(.*)
+  ...
+  containers.services.ingress.annotations:
+    nginx.ingress.kubernetes.io/auth-url: "https://$host/${deployment-name}/external-auth/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "https://$host/${deployment-name}/external-auth/signin?rd=$escaped_request_uri"
+  ```
+
+### 2. Create IDS Identity secret
+Cert-manager stores TLS certificates as Kubernetes secrets, making them easily accessible to your applications. When certificates are renewed, the updated certificates are automatically stored in the corresponding secrets. Create an Kubernetes secret containing the certificates acquired from identity creation.
+```bash
+microk8s kubectl create secret generic ids-identity-secret --from-file=ids.crt=./component.crt \
+                                                           --from-file=ids.key=./component.key \
+                                                           --from-file=ca.crt=./cachain.crt    \
+                                                           -n ${namespace} 
+```
+please update to appropriate names the `namespace` (e.g default)
    
-5. Add the Helm repository of the TSG components:
-    ```bash
-    helm repo add tsg https://nexus.dataspac.es/repository/tsg-helm
-    helm repo update
-    ```
+### 3. Add the Helm repository
+Add the Helm repository of the TSG components:
+```bash
+helm repo add tsg https://nexus.dataspac.es/repository/tsg-helm
+helm repo update
+```
 
-6. To install the Helm chart, execute:
-    ```bash
-    microk8s helm upgrade --install                               \
-            -n ${namespace}                                       \
-            --repo https://nexus.dataspac.es/repository/tsg-helm  \
-            --version 3.2.8                                       \
-            -f values.yaml                                        \
-            ${deployment-name}                                    \
-            tsg-connector
-    ```
-    please update to appropriate names the `namespace` (e.g default) and `deployment-name` (e.g my-connector) fields
+### 4. Helm chart installation
+To install the Helm chart, execute:
+```bash
+microk8s helm upgrade --install                               \
+        -n ${namespace}                                       \
+        --repo https://nexus.dataspac.es/repository/tsg-helm  \
+        --version 3.2.8                                       \
+        -f values.yaml                                        \
+        ${deployment-name}                                    \
+        tsg-connector
+```
+please update to appropriate names the `namespace` (e.g default) and `deployment-name` (e.g my-connector) fields
 
-7. Wait till you ensure connector pods are all in a ready (1/1) state (it might take at least a minute). You can watch the state of the pods using this command:
-   ```bash
-    watch microk8s kubectl get all --all-namespaces
-   ```  
+### 5. Wait
+Wait till you ensure connector pods are all in a ready (1/1) state (it might take at least a minute). You can watch the state of the pods using this command:
+```bash
+watch microk8s kubectl get all --all-namespaces
+```  
 
 ## Interacting
 
