@@ -49,79 +49,73 @@ versions:
 
 #### 1. **Install microk8s system using `snap`:** 
 We use microk8s since it provides easy installation for many important compoments for the connector (kubectl, helm, ingress, cert-manager)
+```bash
+sudo snap install microk8s --classic
+microk8s status --wait-ready # check status of microk8s cluster
+```
 
-    ```bash
-    sudo snap install microk8s --classic
-    microk8s status --wait-ready # check status of microk8s cluster
-    ```
-
-    Optionally, add the following quality-of-life commands: 
-    ```bash
-    alias mkctl="microk8s kubectl" # set alias for kubectl
-    sudo usermod -a -G microk8s ${USER} # set sudo user for microk8s 
-    ```
+Optionally, add the following quality-of-life commands: 
+```bash
+alias mkctl="microk8s kubectl" # set alias for kubectl
+sudo usermod -a -G microk8s ${USER} # set sudo user for microk8s 
+```
 
 #### 2. Ensure which ports are already opened in your current working enviroment using:
-    ```bash
-    sudo ufw status numbered # check port status
-    ```
+```bash
+sudo ufw status numbered # check port status
+```
 
 #### 3. **Enable ingress addon:** 
 An ingress controller acts as a reverse proxy and load balancer. It adds a layer of abstraction to traffic routing, accepting traffic from outside the Kubernetes platform and load balancing it to Pods running inside the platform
-    ```bash
-    # cert-manager requires ports 80,443 to be allowed from the firewall
-    sudo ufw allow 80 
-    sudo ufw allow 443
-    sudo microk8s enable ingress
-    ```
+```bash
+# cert-manager requires ports 80,443 to be allowed from the firewall
+sudo ufw allow 80 
+sudo ufw allow 443
+sudo microk8s enable ingress
+```
 
 #### 4. **Enable cert-manager addon:** 
 Cert-manager is a tool for Kubernetes that makes it easy to get and manage security certificates for your websites or applications. Cert-manager talks to certificate authorities (like Let's Encrypt) automatically to get certificates for your domain.
-    ```bash
-    # cert-manager requires port 9402 to be allowed from the firewall
-    sudo ufw allow 9402
-    # It might require to lower the firewall at the initial installation  
-    # sudo ufw disable
-    sudo microk8s enable cert-manager
-    # sudo ufw enable
-    ```
+```bash
+# cert-manager requires port 9402 to be allowed from the firewall
+sudo ufw allow 9402
+# It might require to lower the firewall at the initial installation  
+# sudo ufw disable
+sudo microk8s enable cert-manager
+# sudo ufw enable
+```
 
 #### 5. **Configure clusterIssuer:** 
 ClusterIssuer is a Kubernetes resource that represents a specific certificate authority or a way to obtain certificates for cluster-wide issuance. It uses the ACME protocol to interact with certificate authorities (e.g Let's Encrypt) and automate the certificate issuance process.
 Apply `cluster-issuer.yaml` file provided using:
-    ```bash
-    microk8s kubectl apply -f cluster-issuer.yaml
-    ```
+```bash
+microk8s kubectl apply -f cluster-issuer.yaml
+```
 
 #### 6. DNS A records 
 Ensure DNS A records (or a wildcard DNS A record) is set to point to the public IP address of the VM.
-    ```bash
-    # This returns VM's public IP address in ipv4 (e.g 147.102.6.27)
-    curl -4 ifconfig.co 
-    # Display the resolved IP address associated with the domain name. See if it matches output of VM's public IP address
-    nslookup {domain-name}
-    ```
+```bash
+# This returns VM's public IP address in ipv4 (e.g 147.102.6.27)
+curl -4 ifconfig.co 
+# Display the resolved IP address associated with the domain name. See if it matches output of VM's public IP address
+nslookup {domain-name}
+```
 
 #### 7. Ensure dns ports (53/9153) are available:
-    ```bash
-    sudo ufw allow 9153 
-    sudo ufw allow 53
-    ```
+```bash
+sudo ufw allow 9153 
+sudo ufw allow 53
+```
 #### 8. **Enable Helm addon:** 
 [Helm](https://helm.sh/docs/intro/using_helm/) is a package manager software for Kubernetes applications. If not installed by default when initializing microk8s cluster, enable it manually:
-   ```bash
-    sudo microk8s enable helm
-   ```
+ ```bash
+  sudo microk8s enable helm
+ ```
 
 ## Deployment
 
 ### 1. Configure the Helm Chart
-Update the `values.yaml` file with the modifications to the configuration (see `/examples/values.ntua.yml` as an example).
-
-    In this guide, it is assumed that you have followed the instructions in the [Requirements](#requirements) section. 
-    Please refer to the official TSG gitlab [page](https://gitlab.com/tno-tsg/helm-charts/connector/-/blob/master/README.md?ref_type=heads) for further information with regards to the configuration.
-    
-    The minimal configuration required to get your first deployment running, without data apps and ingresses, is as follows:
+Update the `values.yaml` file with the modifications to the configuration (see `/examples/values.ntua.yml` as an example).In this guide, it is assumed that you have followed the instructions in the [Requirements](#requirements) section. Please refer to the official TSG gitlab [page](https://gitlab.com/tno-tsg/helm-charts/connector/-/blob/master/README.md?ref_type=heads) for further information with regards to the configuration.The minimal configuration required to get your first deployment running, without data apps and ingresses, is as follows:
 
 #### Host
 Modify `host` to the domain name you configured with the ingress controller:
