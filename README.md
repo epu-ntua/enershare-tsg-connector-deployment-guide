@@ -141,7 +141,7 @@ Apply `cluster-issuer.yaml` file provided using:
             backEndUrlMapping:
               ${api-version}: http://${service-name}:${internal-service-port}
             title: SERVICE TITLE
-            Comment/Uncomment either openApiBaseUrl or openApiMapping snippet
+            # Comment/Uncomment either openApiBaseUrl or openApiMapping snippet
             # openApiBaseUrl: https://app.swaggerhub.com/apiproxy/registry/${username}/${api-name}/
             openApiMapping:
               ${api-version}: http://path_to_api_description_json
@@ -252,7 +252,7 @@ For the `version`, you should select the version of your own backend service, an
 
 #### Headers
 To ensure that the OpenAPI data app knows where to route the request, you can include headers with the request. The headers used are the:
-- `Authorization`:  the Bearer Authentication HTTP header, so the field is filled as `Bearer` plus the API key defined in `values.yaml` file at `containers.apiKey` (required **only** if data-app UI requires ingress authentication)
+- `Authorization`:  the Bearer Authentication HTTP header, so the field is filled as `Bearer`, plus space, plus the API key defined in `values.yaml` file at `containers.apiKey` (incluing `APIKEY-` prefix). This header field is required **only** if data-app UI is configured with ingress authentication.
 - `Forward-ID`: the Agent ID of the service registered at the party you wish to interact with (reciever)
 - `Forward-Sender`: your own Agent ID for identification purposes (`${IDS_COMPONENT_ID}`)
 
