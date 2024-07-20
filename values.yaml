@@ -93,6 +93,6 @@ containers:
           clusterIssuer: letsencrypt
           ingressClass: public
           # If you want to use authentication on the OpenAPI data app, uncomment the following lines:
-          # annotations:
-            # nginx.ingress.kubernetes.io/auth-url: "https://$host/${deployment-name}/external-auth/auth"
-            # nginx.ingress.kubernetes.io/auth-signin: "https://$host/${deployment-name}/external-auth/signin?rd=$escaped_request_uri"
+          annotations:
+            nginx.ingress.kubernetes.io/auth-url: "https://$host/${deployment-name}/external-auth/auth"
+            nginx.ingress.kubernetes.io/auth-signin: "https://$host/${deployment-name}/external-auth/signin?rd=$escaped_request_uri"
