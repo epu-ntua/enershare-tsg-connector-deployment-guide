@@ -291,3 +291,25 @@ microk8s kubectl delete clusterissuer letsencrypt -n ${namespace}
 microk8s kubectl delete secret/${ids-identity-secret} -n ${namespace}
 microk8s helm uninstall ${deployment-name} -n ${namespace}
 ```
+
+## Steps to Upload Artifacts
+
+1. **Access the Connector UI**
+   - Navigate to the connector UI at `/ui`.
+   - Log in using your credentials.
+
+2. **Navigate to the Resources Tab**
+   - After logging in, go to the "Resources" tab.
+
+3. **Add Artifact Details**
+   - Enter the **Title** and **Description** for your artifact.
+   - Select the artifact from your local system by clicking the "Upload" button.
+
+4. **Define Access Contract**
+   - Specify the contract that will govern access to the artifact, or select the "Generic Read Access" option for default access settings.
+
+5. **Upload the Artifact**
+   - Once all details are filled in, click the "Upload" button to upload the artifact.
+   - The artifact is now hosted by the container and will be automatically listed in the Appstore.
+
+> **Important:** If the connector pods fail, the uploaded artifact will be lost.
