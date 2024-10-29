@@ -292,6 +292,17 @@ microk8s kubectl delete secret/${ids-identity-secret} -n ${namespace}
 microk8s helm uninstall ${deployment-name} -n ${namespace}
 ```
 
+## Links
+
+1. Reference docs: https://github.com/european-dynamics-rnd/enershare-ds-components​
+2. Identity Provider: https://daps.enershare.dataspac.es/#connectors​
+3. Metadata Broker: https://broker.enershare.dataspac.es/#connectors​
+4. Appstore: https://store.haslab-dataspace.pt/gui/#/auth/login ​
+5. Marketplace: https://enershare.zapto.org:4173/​
+6. Vocabulary Hub: https://energy.vocabulary-hub.eu/specifications ​
+7. Clearing House: https://enershare.eurodyn.com/dashboard ​
+8. TSG Connector Installation: https://github.com/epu-ntua/enershare-tsg-connector-deployment-guide ​
+
 ## Steps to Upload Artifacts
 
 1. **Access the Connector UI**
