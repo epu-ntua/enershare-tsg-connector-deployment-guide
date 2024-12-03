@@ -324,3 +324,56 @@ microk8s helm uninstall ${deployment-name} -n ${namespace}
    - The artifact is now hosted by the container and will be automatically listed in the Appstore.
 
 > **Important:** If the connector pods fail, the uploaded artifact will be lost.
+
+# TSG/NTUA Connector Configuration Guide
+
+This repository provides the setup instructions for the TSG IDS Connector for the NTUA specifications in the Enershare project. This guide includes all the necessary steps for deploying and configuring the TSG IDS Connector, including installation, interaction, and artifact management.
+
+## Table of Contents
+
+- [Home](./wiki/Home)
+- [Requirements](./wiki/Requirements)
+- [Prerequisites](./wiki/Prerequisites)
+- [Deployment](./wiki/Deployment)
+- [Interacting](./wiki/Interacting)
+- [Cleanup](./wiki/Cleanup)
+- [Artifacts](./wiki/Artifacts)
+- [Links](./wiki/Links)
+- [Persistent Storage Artifacts](./wiki/Persistent%20Storage%20Artifacts)
+
+## Overview
+
+This guide covers the steps required to deploy and configure the TSG IDS Connector in the NTUA setup. Each section in the repository provides in-depth instructions for different aspects of the setup and operation.
+
+### [Home](./wiki/Home)
+The "Home" page offers an overview and general introduction to the TSG/NTUA Connector project. It briefly explains the purpose of the connector, the Enershare project, and the key components involved in the deployment.
+
+### [Requirements](./wiki/Requirements)
+The "Requirements" page lists all the system prerequisites needed for deploying the TSG IDS Connector. This includes the necessary hardware, operating systems (e.g., Ubuntu), and tools (e.g., microk8s, Helm). It also highlights the minimum system specifications and software versions required to ensure a smooth deployment.
+
+### [Prerequisites](./wiki/Prerequisites)
+On the "Prerequisites" page, you'll find instructions to set up the environment for deploying the connector. This section covers the installation of microk8s, enabling essential components such as ingress and cert-manager, and ensuring correct DNS configurations. It also provides guidance on preparing Helm for use with the connector.
+
+### [Deployment](./wiki/Deployment)
+The "Deployment" page contains step-by-step instructions for deploying the TSG IDS Connector. It guides you through the installation process, including:
+- Setting up Helm.
+- Configuring the `values.yaml` file for the connector.
+- Creating secrets for identity certificates.
+- Installing the Helm chart that will deploy the connector into your Kubernetes cluster.
+
+### [Interacting](./wiki/Interacting)
+The "Interacting" page explains how to interact with the deployed TSG IDS Connector. You’ll learn how to access the connector’s UI for managing the connector and data apps. It also provides details on programmatically interacting with the connector via the OpenAPI data app using Python or other methods.
+
+### [Cleanup](./wiki/Cleanup)
+The "Cleanup" page provides instructions on how to clean up and remove the connector and associated resources when no longer needed. This includes deleting the Helm release, identity secrets, cluster issuers, and any other Kubernetes resources tied to the deployment.
+
+### [Artifacts](./wiki/Artifacts)
+The "Artifacts" page provides instructions for managing artifacts within the TSG IDS Connector. You’ll learn how to upload artifacts, configure access contracts, and manage them through the connector's appstore. This section also explains how to interact with and track the lifecycle of artifacts.
+
+### [Links](./wiki/Links)
+The "Links" page contains a collection of useful external references related to the TSG IDS Connector and the Enershare project. It includes links to resources such as the Identity Provider, Metadata Broker, and the official TSG connector installation guide, among others.
+
+### [Persistent Storage Artifacts](./wiki/Persistent%20Storage%20Artifacts)
+The "Persistent Storage Artifacts" page explains how to configure persistent storage to retain artifacts even if the containers are restarted. It covers how to set up persistent volume claims (PVC) for the connector and manage storage in Kubernetes to ensure that artifacts are not lost during deployments or restarts.
+
+For more detailed instructions on any of these topics, refer to the corresponding page in the wiki.
