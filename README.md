@@ -1,4 +1,4 @@
-## Table of Contents
+# TSG/NTUA Connector Configuration Guide
 
 Welcome to the **TSG IDS Connector Deployment Guide**. This repository provides detailed instructions for deploying and configuring the TSG IDS Connector for the **NTUA** specifications within the **Enershare** project. Follow the guide step-by-step for a seamless installation, configuration, and interaction process.
 
