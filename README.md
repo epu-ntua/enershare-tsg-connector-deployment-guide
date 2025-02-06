@@ -74,7 +74,7 @@ Ensure data durability by:
 
 ---
 
-### [10 Deploy as app in connector (https://github.com/epu-ntua/enershare-tsg-connector-deployment-guide/wiki/Deploy-as-app-in-connector)]
+### [🔟 Deploy as app in connector (https://github.com/epu-ntua/enershare-tsg-connector-deployment-guide/wiki/Deploy-as-app-in-connector)]
 Deploy you applications as app in connector
 - Use existing TSG connector deployments
 - `values.yaml` template prodided from the Appstore 
